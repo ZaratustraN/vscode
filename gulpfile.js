@@ -24,9 +24,14 @@ const watchClientTask = task.define('watch-client', task.series(util.rimraf('out
 gulp.task(watchClientTask);
 
 // All
+// monacoTypecheckTask monaco编辑器编译
+// compileClientTask 客户端基础代码编译
+// compileExtensionsTask 客户端基础扩展插件代码编译
 const compileTask = task.define('compile', task.parallel(monacoTypecheckTask, compileClientTask, compileExtensionsTask));
 gulp.task(compileTask);
 
+//watchClientTask 监控src目录变化, 实时编译
+//watchExtensionsTask 监控extensions目录变化，实时编译
 gulp.task(task.define('watch', task.parallel(/* monacoTypecheckWatchTask, */ watchClientTask, watchExtensionsTask)));
 
 // Default

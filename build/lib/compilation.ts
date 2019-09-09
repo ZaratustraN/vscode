@@ -46,10 +46,13 @@ function getTypeScriptCompilerOptions(src: string) {
 }
 
 function createCompile(src: string, build: boolean, emitError?: boolean): (token?: util.ICancellationToken) => NodeJS.ReadWriteStream {
+	//获取typescript编译选项
 	const opts = _.clone(getTypeScriptCompilerOptions(src));
+	//是否代码映射
 	opts.inlineSources = !!build;
 	opts.noFilesystemLookup = true;
 
+	//利用gulp-tsb编译typescript代码
 	const ts = tsb.create(opts, true, undefined, err => reporter(err.toString()));
 
 	return function (token?: util.ICancellationToken) {
@@ -91,13 +94,15 @@ const typesDts = [
 export function compileTask(src: string, out: string, build: boolean): () => NodeJS.ReadWriteStream {
 
 	return function () {
+		//创建编译任务，输入源代码路径， emitError输出错误
 		const compile = createCompile(src, build, true);
-
+		//合并node_modules的dts接口文件作为源代码路径
 		const srcPipe = es.merge(
 			gulp.src(`${src}/**`, { base: `${src}` }),
 			gulp.src(typesDts),
 		);
 
+		//monaco editor 生成器？？？
 		let generator = new MonacoGenerator(false);
 		if (src === 'src') {
 			generator.execute();
@@ -119,6 +124,7 @@ export function watchTask(out: string, build: boolean): () => NodeJS.ReadWriteSt
 			gulp.src('src/**', { base: 'src' }),
 			gulp.src(typesDts),
 		);
+		// watch核心逻辑， 变化后编译
 		const watchSrc = watch('src/**', { base: 'src' });
 
 		let generator = new MonacoGenerator(true);
@@ -126,7 +132,9 @@ export function watchTask(out: string, build: boolean): () => NodeJS.ReadWriteSt
 
 		return watchSrc
 			.pipe(generator.stream)
+			//incremental增量编译, 暂时不细看
 			.pipe(util.incremental(compile, src, true))
+			//输出目录
 			.pipe(gulp.dest(out));
 	};
 }

@@ -51,7 +51,7 @@ function code() {
 	export VSCODE_CLI=1
 	export ELECTRON_ENABLE_STACK_DUMPING=1
 
-	# Launch Code
+	# Launch Code 从哪里启动的？ Electron直接根据package.json中指定的  "main": "./out/main" 启动main进程
 	exec "$CODE" . "$@"
 }
 

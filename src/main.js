@@ -9,6 +9,7 @@
 const perf = require('./vs/base/common/performance');
 const lp = require('./vs/base/node/languagePacks');
 
+//@zara 打时间tag
 perf.mark('main:started');
 
 const path = require('path');

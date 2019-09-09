@@ -318,12 +318,15 @@ gulp.task('editor-distro',
 );
 
 //#region monaco type checking
-
 function createTscCompileTask(watch) {
 	return () => {
+		// 报告输出
 		const createReporter = require('./lib/reporter').createReporter;
 
 		return new Promise((resolve, reject) => {
+			// 利用tsc，以及tsconfig.monaco.json对monaco编辑器进行编译
+			// 主要代码在src/vs/editor下面，另外的依赖可查看tsconfig.monaco.json
+			// 没有输出目录？？？
 			const args = ['./node_modules/.bin/tsc', '-p', './src/tsconfig.monaco.json', '--noEmit'];
 			if (watch) {
 				args.push('-w');
@@ -372,6 +375,7 @@ function createTscCompileTask(watch) {
 const monacoTypecheckWatchTask = task.define('monaco-typecheck-watch', createTscCompileTask(true));
 exports.monacoTypecheckWatchTask = monacoTypecheckWatchTask;
 
+// compile任务用到的monaco相关任务
 const monacoTypecheckTask = task.define('monaco-typecheck', createTscCompileTask(false));
 exports.monacoTypecheckTask = monacoTypecheckTask;
 

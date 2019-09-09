@@ -26,6 +26,7 @@ const ext = require('./lib/extensions');
 
 const extensionsPath = path.join(path.dirname(__dirname), 'extensions');
 
+// 遍历extensions文件夹，找到有tsconfig.json文件的插件
 const compilations = glob.sync('**/tsconfig.json', {
 	cwd: extensionsPath,
 	ignore: ['**/out/**', '**/node_modules/**']
@@ -33,6 +34,8 @@ const compilations = glob.sync('**/tsconfig.json', {
 
 const getBaseUrl = out => `https://ticino.blob.core.windows.net/sourcemaps/${commit}/${out}`;
 
+//找到需要编译的文件夹后生成对应extensions的compile\watch\build任务
+//watch的核心其实也是watcher
 const tasks = compilations.map(function (tsconfigFile) {
 	const absolutePath = path.join(extensionsPath, tsconfigFile);
 	const relativeDirname = path.dirname(tsconfigFile);
@@ -70,7 +73,7 @@ const tasks = compilations.map(function (tsconfigFile) {
 
 		return function () {
 			const input = es.through();
-			const tsFilter = filter(['**/*.ts', '!**/lib/lib*.d.ts', '!**/node_modules/**'], { restore: true });
+			const tsFilter = filter(['**/*.ts', '!**/lib/lib*.d.ts', '!**/node_modules/**'], {restore: true});
 			const output = input
 				.pipe(plumber({
 					errorHandler: function (err) {
@@ -100,7 +103,7 @@ const tasks = compilations.map(function (tsconfigFile) {
 		};
 	}
 
-	const srcOpts = { cwd: path.dirname(__dirname), base: srcBase };
+	const srcOpts = {cwd: path.dirname(__dirname), base: srcBase};
 
 	const cleanTask = task.define(`clean-extension-${name}`, util.rimraf(out));
 
@@ -136,7 +139,7 @@ const tasks = compilations.map(function (tsconfigFile) {
 	gulp.task(compileTask);
 	gulp.task(watchTask);
 
-	return { compileTask, watchTask, compileBuildTask };
+	return {compileTask, watchTask, compileBuildTask};
 });
 
 const compileExtensionsTask = task.define('compile-extensions', task.parallel(...tasks.map(t => t.compileTask)));
